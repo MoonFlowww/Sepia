@@ -18,7 +18,7 @@ Handles datasets from a few points to **tens of millions** through built-in LTTB
 ## Project Structure
 
 ```
-Sepia2/
+Sepia/
 ├── include/sepia/
 │   ├── sepia.hpp              # Single umbrella header
 │   ├── core/
@@ -52,13 +52,13 @@ Sepia2/
 ## Download
 
 ```bash
-git clone https://github.com/MoonFlowww/Sepia2.git
-cd Sepia2
+git clone https://github.com/MoonFlowww/Sepia.git
+cd Sepia
 ```
 
 ## Building
 
-Sepia2 is header-mostly. You only need to compile `src/plot2d/figure.cpp` alongside your own source files.
+Sepia is header-mostly. You only need to compile `src/plot2d/figure.cpp` alongside your own source files.
 
 ### Build an example
 
@@ -137,7 +137,8 @@ figure.axis({.show = true, .tick_size = 5.0});
 figure.legend({.show = true, .position = "top-right"});
 figure.layout({.margin_left = 80.0, .background = sepia::Color::white()});
 figure.text({.color = sepia::Color::black(), .font_size = 12.0});
-figure.perf({.lod_threshold = 4000, .lod_target_points = 2000, .enable_lod = true});
+figure.perf({.lod_enable = true, .lod_target_points = 2000});
+
 
 // Render and export
 figure.render();
@@ -203,7 +204,7 @@ figure.plot(x, y, n)
 | `LegendStyle` | `show`, `bg_color`, `border`, `padding`, `position` |
 | `LayoutStyle` | `margin_top/bottom/left/right`, `background` |
 | `TextStyle` | `color`, `font_size`, `font_face` |
-| `PerfParams` | `lod_threshold`, `lod_target_points`, `enable_lod` |
+| `PerfParams` | `lod_enable`, `lod_target_points` |
 
 ### Colors
 
@@ -230,7 +231,7 @@ MarkerStyle: None, Circle, Square, Triangle, Cross, Diamond
 
 ## Data Ownership
 
-Sepia2 offers three ownership models depending on your performance and lifetime needs:
+Sepia offers three ownership models depending on your performance and lifetime needs:
 
 | Method | Ownership | Copy? | When to use |
 |--------|-----------|-------|-------------|
@@ -269,7 +270,8 @@ The decimation is transparent — it happens during `render()` and does not modi
 
 ## Output Format
 
-Sepia2 outputs **PPM (Portable Pixmap)** files. To convert to PNG:
+Sepia outputs **PPM (Portable Pixmap)** files. To convert to PNG:
+
 
 ```bash
 # Using ImageMagick

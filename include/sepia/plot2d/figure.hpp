@@ -9,7 +9,6 @@
 #include "../rendering/transform.hpp"
 #include "../rendering/text.hpp"
 #include "../rendering/tick_engine.hpp"
-#include <iterator>
 #include <vector>
 #include <string>
 #include <cmath>
@@ -221,12 +220,14 @@ private:
       canvas_.draw_line(x0 - axis_style_.tick_size, py, x0, py, c, w);
       if (!t.label.empty()) {
         i32 tw = rendering::text_width(t.label, 1);
-        rendering::draw_text(canvas_, t.label,
-                             static_cast<i32>(x0 - axis_style_.tick_size - 3) - tw,
-                             static_cast<i32>(py) - 3,
-                             text_style_.color, 
-                             1
-                             );
+        rendering::draw_text(
+          canvas_,
+          t.label,
+          static_cast<i32>(x0 - axis_style_.tick_size - 3) - tw,
+          static_cast<i32>(py) - 3,
+          text_style_.color, 
+          1
+        );
       }
     }
   }
@@ -240,8 +241,8 @@ private:
       // LOD decimation if needed
       data::DataView rx = xv, ry = yv;
       data::Series decimated;
-      if (perf_.lod_enable) { // 1bit if, cheaper than regrouping both
-        if(xv.count > perf_.lod_target_points){ // keep both if away from each others (stresstest 1T points 4K-ms current, 30K-ms regrouped)
+      if (perf_.lod_enable && xv.count >= perf_.lod_target_points) { // 1bit if, cheaper than regrouping both
+        if(true){ // keep both if away from each others (stresstest 1T points 4K-ms current, 30K-ms regrouped)
           decimated = data::LttbDecimator::decimate(xv, yv, perf_.lod_target_points);
           rx = decimated.x_view();
           ry = decimated.y_view();

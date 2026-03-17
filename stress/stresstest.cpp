@@ -87,7 +87,7 @@ int main() {
   }
 
   Sepia::plot2d::Figure fig(1000.0, 550.0);
-  fig.set_title("Sepia2 Render Latency: LTTB On vs Off");
+  fig.set_title("Sepia Render Latency: LTTB On vs Off");
   fig.set_xlabel("Dataset Size (points)");
   fig.set_ylabel("Render Latency (ms)");
 
