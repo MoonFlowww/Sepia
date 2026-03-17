@@ -78,11 +78,9 @@ public:
     render_title_and_labels();
   }
 
-  // --- Output access ---
   const rendering::Canvas& canvas() const { return canvas_; }
   rendering::Canvas& canvas() { return canvas_; }
 
-  // Simple PPM output (no external deps)
   bool save_ppm(const std::string& path) const;
 
   // Access to internals for custom renderers
@@ -226,7 +224,9 @@ private:
         rendering::draw_text(canvas_, t.label,
                              static_cast<i32>(x0 - axis_style_.tick_size - 3) - tw,
                              static_cast<i32>(py) - 3,
-                             text_style_.color, 1);
+                             text_style_.color, 
+                             1
+                             );
       }
     }
   }
@@ -240,10 +240,12 @@ private:
       // LOD decimation if needed
       data::DataView rx = xv, ry = yv;
       data::Series decimated;
-      if (perf_.enable_lod && xv.count > perf_.lod_threshold) {
-        decimated = data::LttbDecimator::decimate(xv, yv, perf_.lod_target_points);
-        rx = decimated.x_view();
-        ry = decimated.y_view();
+      if (perf_.lod_enable) { // 1bit if, cheaper than regrouping both
+        if(xv.count > perf_.lod_target_points){ // keep both if away from each others (stresstest 1T points 4K-ms current, 30K-ms regrouped)
+          decimated = data::LttbDecimator::decimate(xv, yv, perf_.lod_target_points);
+          rx = decimated.x_view();
+          ry = decimated.y_view();
+        }
       }
 
       Color c = st.color;
@@ -325,7 +327,7 @@ private:
         e->style.color,
         2.0
       );
-      
+
       rendering::draw_text(canvas_, e->style.label, lx + 24, ty, text_style_.color, scale);
       ty += line_h;
     }

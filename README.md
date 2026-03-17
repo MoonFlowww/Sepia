@@ -1,4 +1,4 @@
-# Sepia2
+# Sepia
 
 A native C++17 plotting framework for publication-quality 2D visualizations. Zero external dependencies — just the standard library.
 
@@ -187,7 +187,7 @@ figure.plot(x, y, n)
     .alpha      = 0.9,
     .line_style = sepia::LineStyle::Solid,
     .marker     = sepia::MarkerStyle::Circle,
-    .marker_size = 4.0,
+.marker_size = 4.0,
     .fill       = false,
     .label      = "my data"
   });
@@ -251,16 +251,15 @@ figure.plot(std::move(series));
 
 ### LTTB Decimation (Level-of-Detail)
 
-When `enable_lod` is `true` (the default), datasets exceeding `lod_threshold` points are automatically downsampled to `lod_target_points` using the **Largest-Triangle-Three-Buckets** algorithm before rendering. This preserves visual shape while keeping render times constant regardless of input size.
+When `enable_lod` is `true` (the default) automatically downsampled to `lod_target_points` using the **Largest-Triangle-Three-Buckets** algorithm before rendering. This preserves visual shape while keeping render times constant regardless of input size.
 
 ```cpp
 // Defaults (in PerfParams):
-//   lod_threshold     = 4000
+//   lod_enable        = true
 //   lod_target_points = 2000
-//   enable_lod        = true
 
 // Custom tuning
-figure.perf({.lod_threshold = 10000, .lod_target_points = 5000, .enable_lod = true});
+figure.perf({.lod_enable = true, .lod_target_points = 5000});
 
 // Disable decimation entirely
 figure.perf({.enable_lod = false});
@@ -293,30 +292,32 @@ g++ -std=c++20 -O3 -march=native stress/stresstest.cpp src/plot2d/figure.cpp
 ```
 [cmd] time ./a.out
 
-Dataset Size      With LTTB (ms)  Without LTTB (ms)
-------------      --------------  -----------------
-100                         0.14             0.14
-500                         0.20             0.19
-1000                        0.23             0.23
-5000                        0.27             0.49
-10000                       0.28             0.48
-50000                       0.35             1.79
-100000                      0.40             3.44
-500000                      0.89            16.72
-1000000                     1.50            33.33
-5000000                     6.57           148.00
-10000000                   11.43           295.77
-100000000                 111.32          2953.59
-1000000000               1202.44         29590.67
+Dataset Size     With LTTB[2k] (ms)  Without LTTB (ms)
+------------     ------------------  -----------------
+100                         0.04             0.03
+500                         0.03             0.03
+1000                        0.04             0.04
+5000                        0.06             0.06
+10000                       0.06             0.08
+50000                       0.10             0.27
+100000                      0.14             0.51
+500000                      0.44             2.47
+1000000                     0.82             4.89
+5000000                     4.56            24.46
+10000000                    9.38            48.06
+50000000                   42.91           222.55
+100000000                  84.27           433.58
+500000000                 453.53          2178.91
+1000000000                935.94          4459.61
 
 Results plotted to stresstest_results.ppm
 
 --- Summary ---
 At 1T points:
-  With LTTB:    1202.44 ms
-  Without LTTB: 29590.67 ms
-  Speedup:      24.6x
-./a.out  179,92s user 1,53s system 99% cpu 3:01,62 total
+  With LTTB[2k]:  935.94 ms
+  Without LTTB:   4459.61 ms
+  Speedup:        4.8x
+./stresstest  42,85s user 2,17s system 99% cpu 45,112 total
 ```
 
 ![Image](stresstest_results.png)

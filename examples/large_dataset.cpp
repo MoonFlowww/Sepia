@@ -26,7 +26,7 @@ int main() {
   figure.set_xlabel("Time (s)");
   figure.set_ylabel("Signal");
 
-  figure.perf({.lod_threshold = 5000, .lod_target_points = 3000, .enable_lod = true}); // 5000 3000 true
+  figure.perf({.lod_enable= true, .lod_target_points = 3000}); // 5000 3000 true
 
   figure.plot(sepia::data::Series(std::move(x), std::move(y)))
     .data({.color = sepia::Color::blue(), .width = 1.5, .label = "10M signal"});

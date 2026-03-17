@@ -86,9 +86,8 @@ struct LayoutStyle {
 
 // Controls LOD / performance
 struct PerfParams {
-  usize lod_threshold     = 4000;   // above this, apply LTTB decimation
+  usize lod_enable = false;
   usize lod_target_points = 2000;   // target points after decimation
-  bool  enable_lod        = true;   // cheaper than (.size() -> translate static_cast<usize>target -> target>size)
 };
 
 }} // NS sepia::params

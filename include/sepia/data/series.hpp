@@ -36,8 +36,7 @@ public:
   }
 
   // Move-construct from aligned buffers
-  Series(AlignedBuffer<f64>&& x, AlignedBuffer<f64>&& y)
-  : x_(std::move(x)), y_(std::move(y)) {
+  Series(AlignedBuffer<f64>&& x, AlignedBuffer<f64>&& y) : x_(std::move(x)), y_(std::move(y)) {
     recompute_bounds();
   }
 

@@ -15,7 +15,7 @@ struct BenchResult {
   double ms_without_lttb;
 };
 
-static double bench_render(size_t N, bool enable_lod) {
+static double bench_render(size_t N, bool lod_enable) {
   // Generate synthetic signal
   sepia::AlignedBuffer<sepia::f64> x(N), y(N);
   for (size_t i = 0; i < N; ++i) {
@@ -28,9 +28,8 @@ static double bench_render(size_t N, bool enable_lod) {
   figure.set_title("Bench");
 
   figure.perf({
-    .lod_threshold     = 4000,
+    .lod_enable = lod_enable,
     .lod_target_points = 2000,
-    .enable_lod        = enable_lod
   });
 
   figure.plot(sepia::data::Series(std::move(x), std::move(y)))
@@ -38,7 +37,7 @@ static double bench_render(size_t N, bool enable_lod) {
 
   figure.grid({.show = true});
 
-  // Warm-up render (first call may trigger lazy init)
+  // Warm-up render (first call may trigger lazy init,  < -O2)
   figure.render();
 
   // Timed render
@@ -57,15 +56,15 @@ int main() {
   // Dataset sizes to test
   std::vector<size_t> sizes = {
     100, 500, 1000, 5000, 10000, 50000,
-    100000, 500000, 1000000, 5000000, 10000000,
-    100000000, 1000000000
+    100000, 500000, 1000000, 5000000, 10000000, 50000000,
+    100000000, 500000000, 1000000000
   };
 
   std::vector<BenchResult> results;
   results.reserve(sizes.size());
 
-  std::printf("%-15s  %15s  %15s\n", "Dataset Size", "With LTTB (ms)", "Without LTTB (ms)");
-  std::printf("%-15s  %15s  %15s\n", "------------", "--------------", "-----------------");
+  std::printf("%-15s  %15s  %15s\n", "Dataset Size", "With LTTB[2k] (ms)", "Without LTTB (ms)");
+  std::printf("%-15s  %15s  %15s\n", "------------", "------------------", "-----------------");
 
   for (size_t n : sizes) {
     double with_lttb    = bench_render(n, true);
@@ -92,7 +91,7 @@ int main() {
   fig.set_xlabel("Dataset Size (points)");
   fig.set_ylabel("Render Latency (ms)");
 
-  fig.perf({.enable_lod = false}); // don't decimate the benchmark data itself
+  fig.perf({.lod_enable = false}); // don't decimate the benchmark data itself
 
   fig.plot(x_vals.data(), y_with.data(), R)
     .data({
@@ -100,7 +99,7 @@ int main() {
       .width   = 2.5,
       .marker  = sepia::MarkerStyle::Circle,
       .marker_size = 5.0,
-      .label   = "With LTTB"
+      .label   = "With LTTB[2k]"
     });
 
   fig.plot(x_vals.data(), y_without.data(), R)
@@ -134,10 +133,9 @@ int main() {
   // Print summary
   std::printf("\n--- Summary ---\n");
   std::printf("At 1T points:\n");
-  std::printf("  With LTTB:    %.2f ms\n", results.back().ms_with_lttb);
-  std::printf("  Without LTTB: %.2f ms\n", results.back().ms_without_lttb);
-  std::printf("  Speedup:      %.1fx\n",
-    results.back().ms_without_lttb / results.back().ms_with_lttb);
+  std::printf("  With LTTB[2k]:  %.2f ms\n", results.back().ms_with_lttb);
+  std::printf("  Without LTTB:   %.2f ms\n", results.back().ms_without_lttb);
+  std::printf("  Speedup:        %.1fx\n", results.back().ms_without_lttb / results.back().ms_with_lttb);
 
   return 0;
 }
