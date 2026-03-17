@@ -22,7 +22,6 @@ struct DataView {
 
 //------------
 // Series | owns X/Y columns; aligned for vectorized passes.
-// Designed for billions of points: no per-element allocation.
 // -----------
 class Series {
 public:

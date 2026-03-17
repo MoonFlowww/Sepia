@@ -49,14 +49,14 @@ struct AxisStyle {
   f64 width = 1.0;
   f64 tick_size = 5.0;
   Color tick_color = Color::black();
-  
+
   ScaleType x_scale = ScaleType::Linear;
-  f64 x_min = std::numeric_limits<f64>::quiet_NaN();
-  f64 x_max = std::numeric_limits<f64>::quiet_NaN();
-  
+  f64 x_min = 0.0;
+  f64 x_max = 0.0;
+
   ScaleType y_scale = ScaleType::Linear;
-  f64 y_min = std::numeric_limits<f64>::quiet_NaN();
-  f64 y_max = std::numeric_limits<f64>::quiet_NaN();
+  f64 y_min = 0.0;
+  f64 y_max = 0.0;
 };
 
 // Controls legend

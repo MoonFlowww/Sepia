@@ -200,7 +200,7 @@ figure.plot(x, y, n)
 |--------|-----------|
 | `DataStyle` | `color`, `width`, `alpha`, `line_style`, `marker`, `marker_size`, `fill`, `fill_color`, `label` |
 | `GridStyle` | `show`, `major_color`, `minor_color`, `major_width`, `minor_width`, `show_minor` |
-| `AxisStyle` | `show`, `color`, `width`, `tick_size`, `x_min/x_max/y_min/y_max` (NaN = auto) |
+| `AxisStyle` | `show`, `color`, `width`, `tick_size`, `x_min/x_max/y_min/y_max` (-1=no default) |
 | `LegendStyle` | `show`, `bg_color`, `border`, `padding`, `position` |
 | `LayoutStyle` | `margin_top/bottom/left/right`, `background` |
 | `TextStyle` | `color`, `font_size`, `font_face` |
@@ -294,32 +294,33 @@ g++ -std=c++20 -O3 -march=native stress/stresstest.cpp src/plot2d/figure.cpp
 ```
 [cmd] time ./a.out
 
+󰣇 codebase/cpp/Sepia   main  ✘!? ❯ time ./a.out                                                                                                                                                                           13:34 
 Dataset Size     With LTTB[2k] (ms)  Without LTTB (ms)
 ------------     ------------------  -----------------
-100                         0.04             0.03
-500                         0.03             0.03
-1000                        0.04             0.04
-5000                        0.06             0.06
-10000                       0.06             0.08
-50000                       0.10             0.27
-100000                      0.14             0.51
-500000                      0.44             2.47
-1000000                     0.82             4.89
-5000000                     4.56            24.46
-10000000                    9.38            48.06
-50000000                   42.91           222.55
-100000000                  84.27           433.58
-500000000                 453.53          2178.91
-1000000000                935.94          4459.61
+100                         0.13             0.13
+500                         0.18             0.18
+1000                        0.27             0.21
+5000                        0.25             0.31
+10000                       0.26             0.41
+50000                       0.30             1.45
+100000                      0.34             2.79
+500000                      0.65            13.52
+1000000                     1.03            26.90
+5000000                     4.88           130.21
+10000000                    9.02           237.77
+50000000                   44.08          1181.51
+100000000                  84.93          2358.79
+500000000                 453.79         11706.21
+1000000000                952.29         23490.69
 
 Results plotted to stresstest_results.ppm
 
 --- Summary ---
 At 1T points:
-  With LTTB[2k]:  935.94 ms
-  Without LTTB:   4459.61 ms
-  Speedup:        4.8x
-./stresstest  42,85s user 2,17s system 99% cpu 45,112 total
+  With LTTB[2k]:  952.29 ms
+  Without LTTB:   23490.69 ms
+  Speedup:        24.7x
+./a.out  169,84s user 2,19s system 99% cpu 2:52,21 total
 ```
 
 ![Image](stresstest_results.png)

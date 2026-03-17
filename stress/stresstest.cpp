@@ -91,7 +91,7 @@ int main() {
   fig.set_xlabel("Dataset Size (points)");
   fig.set_ylabel("Render Latency (ms)");
 
-  fig.perf({.lod_enable = false}); // don't decimate the benchmark data itself
+  fig.perf({.lod_enable = false}); 
 
   fig.plot(x_vals.data(), y_with.data(), R)
     .data({
