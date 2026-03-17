@@ -294,7 +294,6 @@ g++ -std=c++20 -O3 -march=native stress/stresstest.cpp src/plot2d/figure.cpp
 ```
 [cmd] time ./a.out
 
-󰣇 codebase/cpp/Sepia   main  ✘!? ❯ time ./a.out                                                                                                                                                                           13:34 
 Dataset Size     With LTTB[2k] (ms)  Without LTTB (ms)
 ------------     ------------------  -----------------
 100                         0.13             0.13
