@@ -241,8 +241,8 @@ private:
       // LOD decimation if needed
       data::DataView rx = xv, ry = yv;
       data::Series decimated;
-      if (perf_.lod_enable && xv.count >= perf_.lod_target_points) { // 1bit if, cheaper than regrouping both
-        if(true){ // keep both if away from each others (stresstest 1T points 4K-ms current, 30K-ms regrouped)
+      if (perf_.lod_enable) { // 1bit if, cheaper than regrouping both
+        if(xv.count >= perf_.lod_target_points){ // keep both if away from each others (stresstest 1T points 4K-ms current, 30K-ms regrouped)
           decimated = data::LttbDecimator::decimate(xv, yv, perf_.lod_target_points);
           rx = decimated.x_view();
           ry = decimated.y_view();
