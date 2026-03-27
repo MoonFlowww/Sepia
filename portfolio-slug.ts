@@ -1,0 +1,12 @@
+{
+  id: "08",
+  slug: "sepia",
+  title: "Sepia",
+  subtitle: "Graphics / C++",
+  description: "Zero-dependency C++17 2D plotting library",
+  tags: ["C++17", "Rendering", "LTTB", "SIMD", "Algorithms", "Visualization"],
+  overview:
+    "Publication-quality 2D plotting library written in pure C++17 — zero external dependencies — capable of rendering tens of millions of points in milliseconds via a custom LTTB decimation engine and SIMD-aligned memory.",
+  content:
+    "Sepia is a header-mostly C++17 plotting library built from scratch to produce clean, publication-quality line plots at any data scale — from a handful of points to over a billion — without relying on a single external library.\n\nThe rendering pipeline is fully custom: Xiaolin Wu anti-aliased line drawing, alpha-blended RGBA pixel operations, automatic \"nice\" tick mark generation, and a self-contained 5x7 bitmap font — no FreeType, no libpng, no graphics framework of any kind. Output is written as PPM, a trivially simple format that converts cleanly to PNG downstream.\n\nThe centerpiece algorithmic feature is LTTB (Largest-Triangle-Three-Buckets) decimation. Rather than rendering every raw sample, Sepia downsamples massive datasets to a configurable target resolution while preserving the visual shape of the curve. At one trillion points the difference is stark: 952ms with LTTB versus 23,490ms without — a 24.7x speedup — with no perceptible loss in fidelity.\n\nMemory is treated as a first-class concern throughout. Pixel buffers and data series use 64-byte cache-line aligned allocations (posix_memalign / _aligned_malloc) to keep hot data SIMD-friendly. Three data ownership modes are provided — owning copy, owning move, and zero-copy external reference — so callers can avoid unnecessary allocations when feeding in large existing arrays.\n\nThe API exposes a fluent PlotCommand builder returned by figure.plot(), enabling chainable style configuration (.color(), .width(), .alpha(), .label(), .marker(), .fill()). Alternatively, pre-built aggregate style structs (DataStyle, GridStyle, AxisStyle, LegendStyle) can be passed directly for batch configuration. The result is an interface that scales from a 10-line quick plot to a fully styled multi-series figure.\n\nThe library compiles with GCC 7+, Clang 5+, and MSVC 2017+ and ships with runnable examples (basic sine wave, multi-series chart, 10M-point large dataset) and a stress test suite that benchmarks render latency across sizes from 100 points to one billion.",
+},
