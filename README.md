@@ -235,9 +235,9 @@ Sepia offers three ownership models depending on your performance and lifetime n
 
 | Method | Ownership | Copy? | When to use |
 |--------|-----------|-------|-------------|
-| `figure.plot(ptr, ptr, n)` | **Figure owns** | Yes — data is copied into cache-aligned `AlignedBuffer` | Default. Safe after your arrays go out of scope. |
-| `figure.plot(Series&&)` | **Figure owns** | No — moved in | You already have a `Series` or `AlignedBuffer`. Zero-copy transfer. |
-| `figure.plot_ref(ptr, ptr, n)` | **You own** | No — zero-copy view | Performance-critical. **You must keep your arrays alive** until after `render()`. |
+| `figure.plot(ptr, ptr, n)` | **Figure owns** | Yes,  data is copied into cache-aligned `AlignedBuffer` | Default. Safe after your arrays go out of scope. |
+| `figure.plot(Series&&)` | **Figure owns** | No,  moved in | You already have a `Series` or `AlignedBuffer`. Zero-copy transfer. |
+| `figure.plot_ref(ptr, ptr, n)` | **You own** | No, zero-copy view | Performance-critical. **You must keep your arrays alive** until after `render()`. |
 
 ### AlignedBuffer
 
