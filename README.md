@@ -1,19 +1,19 @@
 # Sepia
 
-A native C++17 plotting framework for publication-quality 2D visualizations. Zero external dependencies — just the standard library.
+A native C++17 plotting framework for publication-quality 2D visualizations. Zero external dependencies.
 
-Handles datasets from a few points to **tens of millions** through built-in LTTB (Largest-Triangle-Three-Buckets) decimation.
+Handles datasets from a few points to **>tens of millions** through built-in LTTB (Largest-Triangle-Three-Buckets) decimation.
 
 ## Features
 
 - 2D line plots with multiple series, colors, line styles, markers, and fill
 - Automatic axis generation with "nice" tick marks and grid rendering
-- Built-in 5x7 bitmap font — no FreeType or external font libraries
+- Built-in 5x7 bitmap font;  no FreeType or external font libraries
 - Xiaolin Wu anti-aliased line drawing
 - LTTB Level-of-Detail decimation for mega-datasets
 - Cache-line aligned memory buffers (SIMD-friendly)
-- PPM image output — no libpng, no external image libraries
-- Header-mostly architecture — single `.cpp` file to compile
+- PPM image output; no libpng, no external image libraries
+- Header-mostly architecture; single `.cpp` file to compile
 
 ## Project Structure
 
