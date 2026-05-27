@@ -2,7 +2,7 @@
 
 A native C++17 plotting framework for publication-quality 2D visualizations. Zero external dependencies.
 
-Handles datasets from a few points to **>tens of millions** through built-in LTTB (Largest-Triangle-Three-Buckets) decimation.
+Handles datasets from a few points to **tens of millions** through built-in LTTB (Largest-Triangle-Three-Buckets) decimation.
 
 ## Features
 
