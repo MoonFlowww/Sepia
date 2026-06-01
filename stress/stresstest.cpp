@@ -132,7 +132,7 @@ int main() {
 
   // Print summary
   std::printf("\n--- Summary ---\n");
-  std::printf("At 1T points:\n");
+  std::printf("At 1B points:\n");
   std::printf("  With LTTB[2k]:  %.2f ms\n", results.back().ms_with_lttb);
   std::printf("  Without LTTB:   %.2f ms\n", results.back().ms_without_lttb);
   std::printf("  Speedup:        %.1fx\n", results.back().ms_without_lttb / results.back().ms_with_lttb);
