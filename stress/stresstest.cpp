@@ -1,4 +1,4 @@
-#include "../include/sepia/sepia.hpp"
+#include "../sepia.hpp"
 #include <cmath>
 #include <chrono>
 #include <cstdio>
@@ -17,7 +17,7 @@ struct BenchResult {
 
 static double bench_render(size_t N, bool lod_enable) {
   // Generate synthetic signal
-  sepia::AlignedBuffer<sepia::f64> x(N), y(N);
+  Sepia::AlignedBuffer<Sepia::f64> x(N), y(N);
   for (size_t i = 0; i < N; ++i) {
     double t = static_cast<double>(i) / static_cast<double>(N) * 100.0;
     x[i] = t;
@@ -32,8 +32,8 @@ static double bench_render(size_t N, bool lod_enable) {
     .lod_target_points = 2000,
   });
 
-  figure.plot(sepia::data::Series(std::move(x), std::move(y)))
-    .data({.color = sepia::Color::blue(), .width = 1.0, .label = "signal"});
+  figure.plot(Sepia::data::Series(std::move(x), std::move(y)))
+    .data({.color = Sepia::Color::blue(), .width = 1.0, .label = "signal"});
 
   figure.grid({.show = true});
 
@@ -78,7 +78,7 @@ int main() {
 
   // ---- Plot the results using Sepia itself ----
   const size_t R = results.size();
-  std::vector<sepia::f64> x_vals(R), y_with(R), y_without(R);
+  std::vector<Sepia::f64> x_vals(R), y_with(R), y_without(R);
 
   for (size_t i = 0; i < R; ++i) {
     x_vals[i]    = static_cast<double>(results[i].n);  // actual dataset size
@@ -86,7 +86,7 @@ int main() {
     y_without[i] = results[i].ms_without_lttb;
   }
 
-  Sepia::plot2d::Figure fig(1000.0, 550.0);
+  Sepia::plot2d::Figure fig(1200.0, 600.0);
   fig.set_title("Sepia Render Latency: LTTB On vs Off");
   fig.set_xlabel("Dataset Size (points)");
   fig.set_ylabel("Render Latency (ms)");
@@ -95,25 +95,25 @@ int main() {
 
   fig.plot(x_vals.data(), y_with.data(), R)
     .data({
-      .color   = sepia::Color::blue(),
+      .color   = Sepia::Color::blue(),
       .width   = 2.5,
-      .marker  = sepia::MarkerStyle::Circle,
+      .marker  = Sepia::MarkerStyle::Circle,
       .marker_size = 5.0,
       .label   = "With LTTB[2k]"
     });
 
   fig.plot(x_vals.data(), y_without.data(), R)
     .data({
-      .color   = sepia::Color::red(),
+      .color   = Sepia::Color::red(),
       .width   = 2.5,
-      .marker  = sepia::MarkerStyle::Diamond,
+      .marker  = Sepia::MarkerStyle::Diamond,
       .marker_size = 5.0,
       .label   = "Without LTTB"
     });
 
   fig.axis({
-    .x_scale = sepia::ScaleType::Log,
-    .y_scale = sepia::ScaleType::Log
+    .x_scale = Sepia::ScaleType::Log,
+    .y_scale = Sepia::ScaleType::Log
   });
 
   fig.grid({.show = true, .show_minor = true});
@@ -122,7 +122,7 @@ int main() {
     .margin_bottom = 65.0,
     .margin_left   = 85.0,
     .margin_right  = 25.0,
-    .background    = sepia::Color::white()
+    .background    = Sepia::Color::white()
   });
 
   fig.render();
