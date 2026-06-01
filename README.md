@@ -315,7 +315,7 @@ Dataset Size     With LTTB[2k] (ms)  Without LTTB (ms)
 Results plotted to stresstest_results.ppm
 
 --- Summary ---
-At 1T points:
+At 1B points:
   With LTTB[2k]:  952.29 ms
   Without LTTB:   23490.69 ms
   Speedup:        24.7x
