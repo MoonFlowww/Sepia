@@ -17,7 +17,7 @@
 
 namespace Sepia {
 
-// ── Public: scalar type aliases ───────────────────────────────────────────────
+// -- Public: scalar type aliases ------------------
 using f32   = float;
 using f64   = double;
 using i32   = std::int32_t;
@@ -27,7 +27,7 @@ using u32   = std::uint32_t;
 using u64   = std::uint64_t;
 using usize = std::size_t;
 
-// ── detail: implementation plumbing — not part of the public API ──────────────
+// --- detail: implementation plumbing, not part of the public API 
 namespace detail {
 
 inline void* aligned_alloc_impl(usize alignment, usize bytes) {
@@ -49,7 +49,7 @@ inline void aligned_free_impl(void* ptr) {
 #endif
 }
 
-// Bump allocator for short-lived per-frame scratch work.
+// Bump allocator for short-lived per-frame scratch work
 class Arena {
 public:
   explicit Arena(usize capacity)
@@ -86,7 +86,7 @@ private:
   char* buf_;
 };
 
-// Pixel-space rectangle; only used inside Figure layout and CoordTransform.
+// Pixel-space rectangle; only used inside Figure layout and CoordTransform
 struct Rect {
   f64 x = 0, y = 0, w = 0, h = 0;
 
@@ -94,10 +94,10 @@ struct Rect {
   constexpr Rect(f64 x, f64 y, f64 w, f64 h) : x(x), y(y), w(w), h(h) {}
 };
 
-} // namespace detail
+} // NS detail
 
-// ── Public: AlignedBuffer<T> ──────────────────────────────────────────────────
-// Cache-line (64-byte) aligned contiguous buffer. Move-only.
+// --- Public: AlignedBuffer<T> ---------------------------------------
+// Cache-line (64-byte) aligned contiguous buffer. Move-only
 template <typename T, usize Alignment = 64>
 class AlignedBuffer {
 public:
@@ -114,7 +114,7 @@ public:
   AlignedBuffer& operator=(const AlignedBuffer&) = delete;
 
   AlignedBuffer(AlignedBuffer&& o) noexcept
-    : size_(o.size_), data_(o.data_) { o.data_ = nullptr; o.size_ = 0; }
+  : size_(o.size_), data_(o.data_) { o.data_ = nullptr; o.size_ = 0; }
 
   AlignedBuffer& operator=(AlignedBuffer&& o) noexcept {
     if (this != &o) { release(); size_ = o.size_; data_ = o.data_; o.data_ = nullptr; o.size_ = 0; }
@@ -147,7 +147,7 @@ private:
   T*    data_ = nullptr;
 };
 
-// ── Public: Color ─────────────────────────────────────────────────────────────
+// --- Public: Color --------------------------------------
 struct Color {
   u32 r = 0, g = 0, b = 0, a = 255;
 
@@ -166,7 +166,7 @@ struct Color {
   constexpr Color with_alpha(u32 alpha) const { return {r, g, b, alpha}; }
 };
 
-// ── Public: BBox ──────────────────────────────────────────────────────────────
+// --- Public: BBox -------------------------------------------------
 struct BBox {
   f64 x_min =  std::numeric_limits<f64>::max();
   f64 x_max = -std::numeric_limits<f64>::max();
@@ -192,7 +192,7 @@ struct BBox {
   f64 height() const { return y_max - y_min; }
 };
 
-// ── Public: style enumerations ────────────────────────────────────────────────
+// --- Public: style enumerations ------------------------------------------------
 enum class LineStyle : u32 {
   Solid, Dashed, Dotted, DashDot, None
 };
@@ -205,7 +205,7 @@ enum class ScaleType : u32 {
   Linear, Log
 };
 
-// ── Public: params — aggregate style structs ──────────────────────────────────
+// --- Public: params, aggregate style structs ------------------------------------------
 namespace params {
 
 struct DataStyle {
@@ -277,9 +277,9 @@ struct PerfParams {
   usize lod_target_points = 2000;
 };
 
-} // namespace params
+} // NS params
 
-// ── Public: data — owning and non-owning series types ─────────────────────────
+// --- Public: data, owning and non-owning series types --------------------------
 namespace data {
 
 struct DataView {
@@ -302,7 +302,7 @@ public:
   }
 
   Series(AlignedBuffer<f64>&& x, AlignedBuffer<f64>&& y)
-    : x_(std::move(x)), y_(std::move(y)) { recompute_bounds(); }
+  : x_(std::move(x)), y_(std::move(y)) { recompute_bounds(); }
 
   DataView    x_view()  const { return {x_.data(), x_.size(), 1}; }
   DataView    y_view()  const { return {y_.data(), y_.size(), 1}; }
@@ -330,7 +330,7 @@ class ExternalSeries {
 public:
   ExternalSeries() = default;
   ExternalSeries(const f64* x, const f64* y, usize n, usize stride = 1)
-    : x_{x, n, stride}, y_{y, n, stride} { recompute_bounds(); }
+  : x_{x, n, stride}, y_{y, n, stride} { recompute_bounds(); }
 
   DataView    x_view()  const { return x_; }
   DataView    y_view()  const { return y_; }
@@ -347,7 +347,7 @@ private:
   BBox bounds_;
 };
 
-// Internal: LTTB decimator. Users configure via PerfParams; never call directly.
+// Internal: LTTB decimator. Users configure via PerfParams; never call directly
 class LttbDecimator {
 public:
   static Series decimate(const DataView& xv, const DataView& yv, usize target) {
@@ -397,12 +397,12 @@ public:
   }
 };
 
-} // namespace data
+} // NS data
 
-// ── rendering: Canvas is semi-public; everything else is internal ─────────────
+// --- rendering: Canvas is semi-public; everything else is internal ----------------------------
 namespace rendering {
 
-// Semi-public: accessible via Figure::canvas() for custom renderers.
+// Semi-public: accessible via Figure::canvas() for custom renderers
 class Canvas {
 public:
   Canvas() = default;
@@ -414,6 +414,7 @@ public:
     clear({255, 255, 255, 255});
   }
 
+
   void clear(Color c) {
     u32* px     = reinterpret_cast<u32*>(pixels_.data());
     u32  packed = pack(c);
@@ -421,13 +422,16 @@ public:
     std::fill(px, px + total, packed);
   }
 
+
   void set_pixel(i32 x, i32 y, Color c) {
     if (x < 0 || y < 0 || x >= static_cast<i32>(width_) || y >= static_cast<i32>(height_)) return;
     usize idx = (static_cast<usize>(y) * width_ + x) * 4;
     u8* dst = pixels_.data() + idx;
+
     if (c.a == 255) {
       dst[0] = static_cast<u8>(c.r); dst[1] = static_cast<u8>(c.g);
       dst[2] = static_cast<u8>(c.b); dst[3] = 255;
+
     } else {
       u32 sa = c.a, da = 255 - sa;
       dst[0] = static_cast<u8>((c.r * sa + dst[0] * da) / 255);
@@ -441,14 +445,17 @@ public:
     draw_line_aa(x0, y0, x1, y1, c, width);
   }
 
+
   void fill_rect(i32 x, i32 y, i32 w, i32 h, Color c) {
     i32 x0 = std::max(x, 0), y0 = std::max(y, 0);
     i32 x1 = std::min(x + w, static_cast<i32>(width_));
     i32 y1 = std::min(y + h, static_cast<i32>(height_));
+
     for (i32 py = y0; py < y1; ++py)
       for (i32 px = x0; px < x1; ++px)
         set_pixel(px, py, c);
   }
+
 
   void draw_rect(i32 x, i32 y, i32 w, i32 h, Color c, f64 line_w = 1.0) {
     draw_line(x, y, x + w, y, c, line_w);
@@ -457,6 +464,7 @@ public:
     draw_line(x, y + h, x, y, c, line_w);
   }
 
+
   void draw_circle(i32 cx, i32 cy, f64 radius, Color c) {
     i32 r = static_cast<i32>(radius);
     for (i32 dy = -r; dy <= r; ++dy)
@@ -464,6 +472,7 @@ public:
         if (dx * dx + dy * dy <= r * r)
           set_pixel(cx + dx, cy + dy, c);
   }
+
 
   u8*       data()   { return pixels_.data(); }
   const u8* data()   const { return pixels_.data(); }
@@ -474,9 +483,9 @@ public:
 private:
   static u32 pack(Color c) {
     return static_cast<u32>(c.r)
-         | (static_cast<u32>(c.g) << 8)
-         | (static_cast<u32>(c.b) << 16)
-         | (static_cast<u32>(c.a) << 24);
+    | (static_cast<u32>(c.g) << 8)
+    | (static_cast<u32>(c.b) << 16)
+    | (static_cast<u32>(c.a) << 24);
   }
 
   void draw_line_aa(f64 x0, f64 y0, f64 x1, f64 y1, Color c, f64 /*width*/) {
@@ -534,7 +543,7 @@ private:
   AlignedBuffer<u8> pixels_;
 };
 
-// Internal: 5×7 bitmap font — no external font dependency.
+// Internal: 5*7 bitmap font, no external font dependency
 namespace font {
 
 struct Glyph { u8 rows[7]; };
@@ -643,11 +652,10 @@ inline const Glyph& get_glyph(char ch) {
   return table[idx];
 }
 
-} // namespace font
+} // NS font
 
-// Internal: text rendering helpers used only by Figure render passes.
-inline void draw_text(Canvas& canvas, const std::string& text, i32 x, i32 y,
-                      Color color, i32 scale = 1) {
+// Internal: text rendering helpers used only by Figure render passes
+inline void draw_text(Canvas& canvas, const std::string& text, i32 x, i32 y, Color color, i32 scale = 1) {
   i32 cursor_x = x;
   for (char ch : text) {
     const auto& g = font::get_glyph(ch);
@@ -656,15 +664,22 @@ inline void draw_text(Canvas& canvas, const std::string& text, i32 x, i32 y,
         if (g.rows[row] & (0x10 >> col))
           for (i32 sy = 0; sy < scale; ++sy)
             for (i32 sx = 0; sx < scale; ++sx)
-              canvas.set_pixel(cursor_x + col * scale + sx,
-                               y + row * scale + sy, color);
+              canvas.set_pixel(
+                cursor_x + col * scale + sx,
+                y + row * scale + sy, 
+                color
+              );
     cursor_x += 6 * scale;
   }
 }
 
-inline void draw_text_vertical(Canvas& canvas, const std::string& text,
-                                i32 x, i32 y, Color color, i32 scale = 1) {
-  i32 lh       = static_cast<i32>(text.size()) * 6 * scale - scale;
+inline void draw_text_vertical(
+  Canvas& canvas, 
+  const std::string& text,
+  i32 x, i32 y, Color color, i32 scale = 1
+) {
+
+  i32 lh = static_cast<i32>(text.size()) * 6 * scale - scale;
   i32 cursor_y = y + lh - 5 * scale;
   for (char ch : text) {
     const auto& g = font::get_glyph(ch);
@@ -673,8 +688,11 @@ inline void draw_text_vertical(Canvas& canvas, const std::string& text,
         if (g.rows[row] & (0x10 >> col))
           for (i32 sy = 0; sy < scale; ++sy)
             for (i32 sx = 0; sx < scale; ++sx)
-              canvas.set_pixel(x + row * scale + sx,
-                               cursor_y + (4 - col) * scale + sy, color);
+              canvas.set_pixel(
+                x + row * scale + sx,
+                cursor_y + (4 - col) * scale + sy, 
+                color
+              );
     cursor_y -= 6 * scale;
   }
 }
@@ -699,9 +717,7 @@ struct Tick {
 
 class TickEngine {
 public:
-  static std::vector<Tick> compute(f64 lo, f64 hi, usize target_ticks = 6,
-                                   bool include_minor = false,
-                                   ScaleType scale = ScaleType::Linear) {
+  static std::vector<Tick> compute(f64 lo, f64 hi, usize target_ticks = 6, bool include_minor = false, ScaleType scale = ScaleType::Linear) {
     if (scale == ScaleType::Log) return compute_log(lo, hi, include_minor);
     return compute_linear(lo, hi, target_ticks, include_minor);
   }
@@ -728,10 +744,12 @@ private:
     for (f64 v = start; v <= hi + step * 0.001; v += step) {
       if (v < lo - step * 0.001) continue;
       ticks.push_back({v, format_value(v, step), false});
+
       if (include_minor) {
         f64 minor_step = step / 5.0;
         for (int m = 1; m < 5; ++m) {
           f64 mv = v + m * minor_step;
+
           if (mv > lo && mv < hi) ticks.push_back({mv, "", true});
         }
       }
@@ -761,8 +779,10 @@ private:
   static std::string format_value(f64 v, f64 step) {
     char buf[64];
     if (step >= 1.0 && std::abs(v) < 1e12) {
-      if (std::abs(v - std::round(v)) < 1e-9) std::snprintf(buf, sizeof(buf), "%.0f", v);
-      else                                      std::snprintf(buf, sizeof(buf), "%.1f", v);
+      if (std::abs(v - std::round(v)) < 1e-9) 
+        std::snprintf(buf, sizeof(buf), "%.0f", v);
+      else 
+        std::snprintf(buf, sizeof(buf), "%.1f", v);
     } else if (step >= 0.01) {
       std::snprintf(buf, sizeof(buf), "%.2f", v);
     } else {
@@ -773,20 +793,23 @@ private:
 
   static std::string format_log_value(f64 v) {
     char buf[64];
-    if (v >= 1.0 && v < 1e7) std::snprintf(buf, sizeof(buf), "%.0f", v);
-    else                       std::snprintf(buf, sizeof(buf), "%.0e", v);
+    if (v >= 1.0 && v < 1e7) 
+      std::snprintf(buf, sizeof(buf), "%.0f", v);
+    else
+      std::snprintf(buf, sizeof(buf), "%.0e", v);
     return buf;
   }
 };
 
-// Internal: data-space ↔ pixel-space coordinate mapping. Hot path per point.
+// Internal: data-space -> pixel-space coordinate mapping. Hot path per point.
 class CoordTransform {
 public:
   CoordTransform() = default;
 
-  void set(const BBox& data_box, const detail::Rect& pixel_rect,
-           ScaleType x_scale = ScaleType::Linear,
-           ScaleType y_scale = ScaleType::Linear) {
+  void set(const BBox& data_box, const detail::Rect& pixel_rect, 
+           ScaleType x_scale = ScaleType::Linear, 
+           ScaleType y_scale = ScaleType::Linear ) {
+
     data_  = data_box;
     rect_  = pixel_rect;
     x_log_ = (x_scale == ScaleType::Log);
@@ -820,7 +843,7 @@ public:
     return y_log_ ? std::pow(10.0, v) : v;
   }
 
-  const BBox&        data_box()   const { return data_; }
+  const BBox& data_box() const { return data_; }
   const detail::Rect& pixel_rect() const { return rect_; }
 
 private:
@@ -833,12 +856,13 @@ private:
   bool x_log_ = false, y_log_ = false;
 };
 
-} // namespace rendering
+} // NS rendering
 
-// Internal: PPM file output — called only through Figure::save_ppm().
+// Internal: PPM file output, called only through Figure::save_ppm()
 namespace output {
 
 inline bool write_ppm(const rendering::Canvas& canvas, const std::string& path) {
+
   std::ofstream f(path, std::ios::binary);
   if (!f.is_open()) return false;
 
@@ -858,9 +882,9 @@ inline bool write_ppm(const rendering::Canvas& canvas, const std::string& path) 
   return f.good();
 }
 
-} // namespace output
+} // NS output
 
-// ── Public: plot2d ────────────────────────────────────────────────────────────
+// --- Public: plot2d -------------------------------------------------------
 namespace plot2d {
 
 using SeriesVariant = std::variant<data::Series, data::ExternalSeries>;
@@ -879,24 +903,28 @@ class Figure;
 
 class PlotCommand {
 public:
-  PlotCommand(Figure& fig, data::Series&& series)
-    : fig_(fig), entry_{std::move(series), {}} {}
+  PlotCommand(Figure& fig, data::Series&& series) : 
+    fig_(fig), entry_{std::move(series), {}} 
+  {}
 
-  PlotCommand(Figure& fig, data::ExternalSeries&& series)
-    : fig_(fig), entry_{std::move(series), {}} {}
+  PlotCommand(Figure& fig, data::ExternalSeries&& series) : 
+    fig_(fig), entry_{std::move(series), {}} 
+  {}
 
   PlotCommand& data(const params::DataStyle& style) { entry_.style = style; return *this; }
 
   PlotCommand& color(Color c)              { entry_.style.color      = c;    return *this; }
-  PlotCommand& width(f64 w)               { entry_.style.width      = w;    return *this; }
-  PlotCommand& alpha(f64 a)               { entry_.style.alpha      = a;    return *this; }
+  PlotCommand& width(f64 w)                { entry_.style.width      = w;    return *this; }
+  PlotCommand& alpha(f64 a)                { entry_.style.alpha      = a;    return *this; }
   PlotCommand& label(const std::string& l) { entry_.style.label      = l;    return *this; }
   PlotCommand& line(LineStyle s)           { entry_.style.line_style = s;    return *this; }
+
   PlotCommand& marker(MarkerStyle m, f64 size = 4.0) {
     entry_.style.marker      = m;
     entry_.style.marker_size = size;
     return *this;
   }
+
   PlotCommand& fill(bool on = true, Color c = Color::blue().with_alpha(50)) {
     entry_.style.fill       = on;
     entry_.style.fill_color = c;
@@ -916,9 +944,10 @@ private:
 
 class Figure {
 public:
-  Figure(f64 width, f64 height)
-    : canvas_(static_cast<u32>(width), static_cast<u32>(height))
-    , fig_w_(width), fig_h_(height) {}
+  Figure(f64 width, f64 height) : 
+    canvas_(static_cast<u32>(width), static_cast<u32>(height)), 
+    fig_w_(width), fig_h_(height) 
+  {}
 
   void set_title(const std::string& t)  { title_  = t; }
   void set_xlabel(const std::string& l) { xlabel_ = l; }
@@ -954,7 +983,7 @@ public:
   }
 
   const rendering::Canvas& canvas() const { return canvas_; }
-        rendering::Canvas& canvas()       { return canvas_; }
+  rendering::Canvas& canvas()       { return canvas_; }
 
   bool save_ppm(const std::string& path) const {
     return output::write_ppm(canvas_, path);
@@ -990,6 +1019,7 @@ private:
         f64 log_lo = std::log10(data_bounds_.x_min);
         f64 log_hi = std::log10(data_bounds_.x_max);
         f64 pad = (log_hi - log_lo) * 0.05; if (pad == 0) pad = 0.15;
+
         data_bounds_.x_min = std::pow(10.0, log_lo - pad);
         data_bounds_.x_max = std::pow(10.0, log_hi + pad);
       } else {
@@ -1001,6 +1031,7 @@ private:
         f64 log_lo = std::log10(data_bounds_.y_min);
         f64 log_hi = std::log10(data_bounds_.y_max);
         f64 pad = (log_hi - log_lo) * 0.05; if (pad == 0) pad = 0.15;
+
         data_bounds_.y_min = std::pow(10.0, log_lo - pad);
         data_bounds_.y_max = std::pow(10.0, log_hi + pad);
       } else {
@@ -1016,24 +1047,41 @@ private:
 
   void render_grid() {
     if (!grid_style_.show) return;
+
     auto xticks = rendering::TickEngine::compute(
-      data_bounds_.x_min, data_bounds_.x_max, 8, grid_style_.show_minor, axis_style_.x_scale);
+      data_bounds_.x_min, 
+      data_bounds_.x_max, 
+      8, 
+      grid_style_.show_minor, 
+      axis_style_.x_scale
+    );
+
     auto yticks = rendering::TickEngine::compute(
-      data_bounds_.y_min, data_bounds_.y_max, 6, grid_style_.show_minor, axis_style_.y_scale);
+      data_bounds_.y_min, 
+      data_bounds_.y_max, 
+      6, 
+      grid_style_.show_minor, 
+      axis_style_.y_scale
+    );
+
 
     for (auto& t : xticks) {
-      f64   px = transform_.to_px_x(t.value);
+      f64 px = transform_.to_px_x(t.value);
       Color c  = t.is_minor ? grid_style_.minor_color : grid_style_.major_color;
-      f64   w  = t.is_minor ? grid_style_.minor_width : grid_style_.major_width;
-      f64   a  = t.is_minor ? grid_style_.minor_alpha : grid_style_.major_alpha;
+      f64 w  = t.is_minor ? grid_style_.minor_width : grid_style_.major_width;
+      f64 a  = t.is_minor ? grid_style_.minor_alpha : grid_style_.major_alpha;
+
       c = c.with_alpha(static_cast<u32>(a * 255));
       canvas_.draw_line(px, plot_area_.y, px, plot_area_.y + plot_area_.h, c, w);
     }
+
+
     for (auto& t : yticks) {
-      f64   py = transform_.to_px_y(t.value);
+      f64 py = transform_.to_px_y(t.value);
       Color c  = t.is_minor ? grid_style_.minor_color : grid_style_.major_color;
-      f64   w  = t.is_minor ? grid_style_.minor_width : grid_style_.major_width;
-      f64   a  = t.is_minor ? grid_style_.minor_alpha : grid_style_.major_alpha;
+      f64 w  = t.is_minor ? grid_style_.minor_width : grid_style_.major_width;
+      f64 a  = t.is_minor ? grid_style_.minor_alpha : grid_style_.major_alpha;
+
       c = c.with_alpha(static_cast<u32>(a * 255));
       canvas_.draw_line(plot_area_.x, py, plot_area_.x + plot_area_.w, py, c, w);
     }
@@ -1042,7 +1090,7 @@ private:
   void render_axes() {
     if (!axis_style_.show) return;
     Color c = axis_style_.color;
-    f64   w = axis_style_.width;
+    f64 w = axis_style_.width;
     f64 x0 = plot_area_.x, y0 = plot_area_.y;
     f64 x1 = x0 + plot_area_.w, y1 = y0 + plot_area_.h;
 
@@ -1051,31 +1099,58 @@ private:
     canvas_.draw_line(x1, y1, x0, y1, c, w);
     canvas_.draw_line(x0, y1, x0, y0, c, w);
 
+
     auto xticks = rendering::TickEngine::compute(
-      data_bounds_.x_min, data_bounds_.x_max, 8, false, axis_style_.x_scale);
+      data_bounds_.x_min, 
+      data_bounds_.x_max, 
+      8, 
+      false, 
+      axis_style_.x_scale
+    );
+
+
     for (auto& t : xticks) {
       f64 px = transform_.to_px_x(t.value);
       canvas_.draw_line(px, y1, px, y1 + axis_style_.tick_size, c, w);
+
       if (!t.label.empty()) {
         i32 tw = rendering::text_width(t.label, 1);
-        rendering::draw_text(canvas_, t.label,
+
+        rendering::draw_text(
+          canvas_, 
+          t.label,
           static_cast<i32>(px) - tw / 2,
           static_cast<i32>(y1 + axis_style_.tick_size + 3),
-          text_style_.color, 1);
+          text_style_.color, 
+          1
+        );
       }
     }
 
     auto yticks = rendering::TickEngine::compute(
-      data_bounds_.y_min, data_bounds_.y_max, 6, false, axis_style_.y_scale);
+      data_bounds_.y_min, 
+      data_bounds_.y_max, 
+      6, 
+      false, 
+      axis_style_.y_scale
+    );
+
+
     for (auto& t : yticks) {
       f64 py = transform_.to_px_y(t.value);
       canvas_.draw_line(x0 - axis_style_.tick_size, py, x0, py, c, w);
+
+
       if (!t.label.empty()) {
         i32 tw = rendering::text_width(t.label, 1);
-        rendering::draw_text(canvas_, t.label,
+        rendering::draw_text(
+          canvas_, 
+          t.label,
           static_cast<i32>(x0 - axis_style_.tick_size - 3) - tw,
           static_cast<i32>(py) - 3,
-          text_style_.color, 1);
+          text_style_.color, 
+          1
+        );
       }
     }
   }
@@ -1087,6 +1162,7 @@ private:
 
       data::DataView rx = xv, ry = yv;
       data::Series decimated;
+
       if (perf_.lod_enable) {
         if (xv.count >= perf_.lod_target_points) {
           decimated = data::LttbDecimator::decimate(xv, yv, perf_.lod_target_points);
@@ -1098,12 +1174,16 @@ private:
       Color c = st.color;
       if (st.alpha < 1.0) c = c.with_alpha(static_cast<u32>(st.alpha * 255));
 
-      if (st.line_style != LineStyle::None && rx.count > 1)
-        for (usize i = 1; i < rx.count; ++i)
+      if (st.line_style != LineStyle::None && rx.count > 1) {
+        for (usize i = 1; i < rx.count; ++i) {
           canvas_.draw_line(
             transform_.to_px_x(rx[i-1]), transform_.to_px_y(ry[i-1]),
             transform_.to_px_x(rx[i]),   transform_.to_px_y(ry[i]),
-            c, st.width);
+            c,
+            st.width
+          );
+        }
+      }
 
       if (st.fill && rx.count > 1) {
         f64 base_py = transform_.to_px_y(data_bounds_.y_min);
@@ -1116,12 +1196,16 @@ private:
         }
       }
 
-      if (st.marker != MarkerStyle::None)
-        for (usize i = 0; i < rx.count; ++i)
+      if (st.marker != MarkerStyle::None) {
+        for (usize i = 0; i < rx.count; ++i) {
           canvas_.draw_circle(
             static_cast<i32>(transform_.to_px_x(rx[i])),
             static_cast<i32>(transform_.to_px_y(ry[i])),
-            st.marker_size, c);
+            st.marker_size, 
+            c
+          );
+        }
+      }
     }
   }
 
@@ -1134,6 +1218,8 @@ private:
     i32 scale  = 1;
     i32 line_h = rendering::text_height(scale) + 4;
     i32 max_w  = 0;
+
+
     for (auto* e : labeled) {
       i32 w = rendering::text_width(e->style.label, scale);
       if (w > max_w) max_w = w;
@@ -1141,7 +1227,8 @@ private:
 
     i32 box_w = max_w + 30 + static_cast<i32>(legend_style_.padding * 2);
     i32 box_h = static_cast<i32>(labeled.size()) * line_h
-              + static_cast<i32>(legend_style_.padding * 2);
+      + static_cast<i32>(legend_style_.padding * 2);
+
 
     i32 bx = static_cast<i32>(plot_area_.x + plot_area_.w) - box_w - 8;
     i32 by = static_cast<i32>(plot_area_.y) + 8;
@@ -1149,11 +1236,20 @@ private:
     canvas_.fill_rect(bx, by, box_w, box_h, legend_style_.bg_color);
     canvas_.draw_rect(bx, by, box_w, box_h, legend_style_.border);
 
+
     i32 ty = by + static_cast<i32>(legend_style_.padding);
     for (auto* e : labeled) {
       i32 lx = bx + static_cast<i32>(legend_style_.padding);
-      canvas_.draw_line(lx, ty + line_h / 2.0, lx + 18, ty + line_h / 2.0,
-                        e->style.color, 2.0);
+
+      canvas_.draw_line(
+        lx, 
+        ty + line_h / 2.0, 
+        lx + 18, 
+        ty + line_h / 2.0,
+        e->style.color, 
+        2.0
+      );
+
       rendering::draw_text(canvas_, e->style.label, lx + 24, ty, text_style_.color, scale);
       ty += line_h;
     }
@@ -1202,6 +1298,6 @@ private:
 inline PlotCommand::~PlotCommand() { if (!committed_) commit(); }
 inline void PlotCommand::commit()  { fig_.add_entry(std::move(entry_)); committed_ = true; }
 
-} // namespace plot2d
+} // NS plot2d
 
-} // namespace Sepia
+} // NS Sepia
