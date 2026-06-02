@@ -1,0 +1,18 @@
+add_library(catch_main STATIC catch_amalgamated.cpp)
+target_include_directories(catch_main PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+function(add_sepia_test name)
+  add_executable(${name} ${name}.cpp)
+  target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR})
+  target_link_libraries(${name} PRIVATE catch_main)
+  add_test(NAME ${name} COMMAND ${name})
+endfunction()
+
+add_sepia_test(test_tick_engine)
+add_sepia_test(test_coord_transform)
+add_sepia_test(test_lttb)
+add_sepia_test(test_memory)
+add_sepia_test(test_series)
+add_sepia_test(test_primitives)
+add_sepia_test(test_canvas)
+add_sepia_test(test_figure)
