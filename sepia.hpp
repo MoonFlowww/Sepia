@@ -441,8 +441,9 @@ public:
     }
   }
 
-  void draw_line(f64 x0, f64 y0, f64 x1, f64 y1, Color c, f64 width = 1.0) {
-    draw_line_aa(x0, y0, x1, y1, c, width);
+  void draw_line(f64 x0, f64 y0, f64 x1, f64 y1, Color c, f64 width = 1.0, bool aa=true) {
+    if(aa) draw_line_aa(x0, y0, x1, y1, c, width);
+    else draw_line_bresenham(x0, y0, x1, y1, c, width);
   }
 
 
@@ -452,16 +453,15 @@ public:
     i32 y1 = std::min(y + h, static_cast<i32>(height_));
 
     for (i32 py = y0; py < y1; ++py)
-      for (i32 px = x0; px < x1; ++px)
-        set_pixel(px, py, c);
+      for (i32 px = x0; px < x1; ++px) set_pixel(px, py, c);
   }
 
 
-  void draw_rect(i32 x, i32 y, i32 w, i32 h, Color c, f64 line_w = 1.0) {
-    draw_line(x, y, x + w, y, c, line_w);
-    draw_line(x + w, y, x + w, y + h, c, line_w);
-    draw_line(x + w, y + h, x, y + h, c, line_w);
-    draw_line(x, y + h, x, y, c, line_w);
+  void draw_rect(i32 x, i32 y, i32 w, i32 h, Color c, f64 line_w = 1.0) { // legend
+    draw_line(x, y, x + w, y, c, line_w, false);
+    draw_line(x + w, y, x + w, y + h, c, line_w, false);
+    draw_line(x + w, y + h, x, y + h, c, line_w, false);
+    draw_line(x, y + h, x, y, c, line_w, false);
   }
 
 
@@ -531,6 +531,46 @@ private:
       intery += gradient;
     }
   }
+
+  void draw_line_bresenham(f64 x0, f64 y0, f64 x1, f64 y1, Color c, f64 width) {
+    // Convert to integer coordinates (rounding)
+    i32 x0i = static_cast<i32>(std::round(x0));
+    i32 y0i = static_cast<i32>(std::round(y0));
+    i32 x1i = static_cast<i32>(std::round(x1));
+    i32 y1i = static_cast<i32>(std::round(y1));
+
+    // Width > 1 is more complex; for simplicity, we ignore width > 1 in this example
+    // (you could draw multiple parallel lines later)
+
+    // Bresenham algorithm
+    bool steep = std::abs(y1i - y0i) > std::abs(x1i - x0i);
+    if (steep) {
+        std::swap(x0i, y0i);
+        std::swap(x1i, y1i);
+    }
+    if (x0i > x1i) {
+        std::swap(x0i, x1i);
+        std::swap(y0i, y1i);
+    }
+
+    i32 dx = x1i - x0i;
+    i32 dy = std::abs(y1i - y0i);
+    i32 err = dx / 2;
+    i32 ystep = (y0i < y1i) ? 1 : -1;
+    i32 y = y0i;
+
+    for (i32 x = x0i; x <= x1i; ++x) {
+        if (steep)
+            set_pixel(y, x, c);
+        else
+            set_pixel(x, y, c);
+        err -= dy;
+        if (err < 0) {
+            y += ystep;
+            err += dx;
+        }
+    }
+}
 
   static f64 fpart(f64 x)  { return x - std::floor(x); }
   static f64 rfpart(f64 x) { return 1.0 - fpart(x); }
@@ -960,6 +1000,8 @@ public:
   void text(const params::TextStyle& t)     { text_style_   = t; }
   void perf(const params::PerfParams& p)    { perf_         = p; }
 
+  
+  // LINE PLOTS
   inline PlotCommand plot(const f64* x, const f64* y, usize n) {
     return PlotCommand(*this, data::Series(x, y, n));
   }
@@ -1072,7 +1114,7 @@ private:
       f64 a  = t.is_minor ? grid_style_.minor_alpha : grid_style_.major_alpha;
 
       c = c.with_alpha(static_cast<u32>(a * 255));
-      canvas_.draw_line(px, plot_area_.y, px, plot_area_.y + plot_area_.h, c, w);
+      canvas_.draw_line(px, plot_area_.y, px, plot_area_.y + plot_area_.h, c, w, false);
     }
 
 
@@ -1083,7 +1125,7 @@ private:
       f64 a  = t.is_minor ? grid_style_.minor_alpha : grid_style_.major_alpha;
 
       c = c.with_alpha(static_cast<u32>(a * 255));
-      canvas_.draw_line(plot_area_.x, py, plot_area_.x + plot_area_.w, py, c, w);
+      canvas_.draw_line(plot_area_.x, py, plot_area_.x + plot_area_.w, py, c, w, false);
     }
   }
 
@@ -1094,10 +1136,10 @@ private:
     f64 x0 = plot_area_.x, y0 = plot_area_.y;
     f64 x1 = x0 + plot_area_.w, y1 = y0 + plot_area_.h;
 
-    canvas_.draw_line(x0, y0, x1, y0, c, w);
-    canvas_.draw_line(x1, y0, x1, y1, c, w);
-    canvas_.draw_line(x1, y1, x0, y1, c, w);
-    canvas_.draw_line(x0, y1, x0, y0, c, w);
+    canvas_.draw_line(x0, y0, x1, y0, c, w, false);
+    canvas_.draw_line(x1, y0, x1, y1, c, w, false);
+    canvas_.draw_line(x1, y1, x0, y1, c, w, false);
+    canvas_.draw_line(x0, y1, x0, y0, c, w, false);
 
 
     auto xticks = rendering::TickEngine::compute(
@@ -1111,7 +1153,7 @@ private:
 
     for (auto& t : xticks) {
       f64 px = transform_.to_px_x(t.value);
-      canvas_.draw_line(px, y1, px, y1 + axis_style_.tick_size, c, w);
+      canvas_.draw_line(px, y1, px, y1 + axis_style_.tick_size, c, w, false);
 
       if (!t.label.empty()) {
         i32 tw = rendering::text_width(t.label, 1);
@@ -1138,7 +1180,7 @@ private:
 
     for (auto& t : yticks) {
       f64 py = transform_.to_px_y(t.value);
-      canvas_.draw_line(x0 - axis_style_.tick_size, py, x0, py, c, w);
+      canvas_.draw_line(x0 - axis_style_.tick_size, py, x0, py, c, w, false);
 
 
       if (!t.label.empty()) {
@@ -1247,7 +1289,8 @@ private:
         lx + 18, 
         ty + line_h / 2.0,
         e->style.color, 
-        2.0
+        2.0,
+        false
       );
 
       rendering::draw_text(canvas_, e->style.label, lx + 24, ty, text_style_.color, scale);

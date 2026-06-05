@@ -16,7 +16,12 @@ int main() {
   figure.set_ylabel("Amplitude");
 
   figure.plot(x.data(), y.data(), N)
-    .data({.color = Sepia::Color::blue(), .width = 2.0, .label = "sin(x)"});
+    .data({
+      .color = Sepia::Color::blue(),
+      .width = 2.0,
+      .marker_size = 1.0,
+      .label = "sin(x)"
+    });
 
   figure.grid({.show = true, .major_color = {210, 210, 210}});
 
