@@ -1,4 +1,7 @@
 # 🖌️ Sepia
+![GitHub last commit](https://img.shields.io/github/last-commit/MoonFlowww/Sepia?logo=github)
+![Unique Cloners](https://img.shields.io/badge/Unique_Cloners-156-blue?logo=github)
+
 >  Sepia: named after the cuttlefish (`Sepia officinalis`), which releases ink, here we "ink" pixels onto the plots.
 
 A native C++20 plotting framework for publication-quality 2D visualizations. Single-Header and Zero external dependencies.
