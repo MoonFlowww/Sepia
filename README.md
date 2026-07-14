@@ -4,7 +4,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/MoonFlowww/Sepia?logo=github)
 ![Unique Cloners](https://img.shields.io/badge/Unique_Cloners-156-blue?logo=github)
 
-A native C++17 plotting framework for publication-quality 2D visualizations. Single-Header and Zero external dependencies.
+A native C++20 plotting framework for publication-quality 2D visualizations. Single-Header and Zero external dependencies.
 
 Handles datasets from a few points to **tens of millions** through built-in LTTB (Largest-Triangle-Three-Buckets) decimation.
 
@@ -228,7 +228,7 @@ ffmpeg -i output.ppm output.png
 
 ## Requirements
 
-- C++17 compiler (GCC 7+, Clang 5+, MSVC 2017+)
+- C++20 compiler (GCC 10+, Clang 10+, MSVC 2019 16.8+)
 - No external libraries
 
 ## Stress Test Results
