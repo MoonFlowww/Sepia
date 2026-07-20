@@ -1,5 +1,6 @@
 #include "catch_amalgamated.hpp"
 #include "sepia.hpp"
+#include <filesystem>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -93,7 +94,7 @@ TEST_CASE("Figure save_ppm produces valid PPM with correct dimensions") {
     fig.plot(x.data(), y.data(), 3);
     fig.render();
 
-    std::string path = "/tmp/sepia_test_figure.ppm";
+    std::string path = (std::filesystem::temp_directory_path() / "sepia_test_figure.ppm").string();
     CHECK(fig.save_ppm(path));
 
     std::ifstream f(path, std::ios::binary | std::ios::ate);

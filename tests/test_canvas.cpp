@@ -1,5 +1,6 @@
 #include "catch_amalgamated.hpp"
 #include "sepia.hpp"
+#include <filesystem>
 #include <fstream>
 #include <string>
 
@@ -122,7 +123,7 @@ TEST_CASE("draw_text_vertical writes at least one non-background pixel") {
 TEST_CASE("write_ppm produces valid PPM header") {
     Canvas c(10, 8);
     c.set_pixel(0, 0, {10, 20, 30, 255});
-    std::string path = "/tmp/sepia_test_canvas.ppm";
+    std::string path = (std::filesystem::temp_directory_path() / "sepia_test_canvas.ppm").string();
     REQUIRE(output::write_ppm(c, path));
 
     std::ifstream f(path, std::ios::binary);
@@ -138,7 +139,7 @@ TEST_CASE("write_ppm produces valid PPM header") {
 
 TEST_CASE("write_ppm file size is exact") {
     Canvas c(10, 8);
-    std::string path = "/tmp/sepia_test_canvas_size.ppm";
+    std::string path = (std::filesystem::temp_directory_path() / "sepia_test_canvas_size.ppm").string();
     REQUIRE(output::write_ppm(c, path));
 
     std::ifstream f(path, std::ios::binary | std::ios::ate);
